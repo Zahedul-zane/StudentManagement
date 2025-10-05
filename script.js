@@ -9,15 +9,15 @@ class Student {
     }
 }
 
-// Global variables (in-memory only - no storage)
+// Global variables (in-memory only)
 let studentList = [];
 let selectedRow = null;
 
 // DOM elements
-let nameField, idField, deptField, emailField, cgpaField, searchField, studentTableBody, teraLinkInput;
+let nameField, idField, deptField, emailField, cgpaField, searchField, studentTableBody;
 
-// Initialize
-function initialize() {
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', function() {
     nameField = document.getElementById('nameField');
     idField = document.getElementById('idField');
     deptField = document.getElementById('deptField');
@@ -25,17 +25,16 @@ function initialize() {
     cgpaField = document.getElementById('cgpaField');
     searchField = document.getElementById('searchField');
     studentTableBody = document.getElementById('studentTableBody');
-    teraLinkInput = document.getElementById('teraLinkInput');
 
-    if (!nameField || !idField || !deptField || !emailField || !cgpaField || !searchField || !studentTableBody || !teraLinkInput) {
+    if (!nameField || !idField || !deptField || !emailField || !cgpaField || !searchField || !studentTableBody) {
         alert('Error: UI elements missing. Check HTML.');
         return;
     }
 
     renderTable();
     studentTableBody.addEventListener('click', handleRowClick);
-    console.log('Initialized - Data ONLY in TeraBox folder (in-memory during session)');
-}
+    console.log('Initialized - Data ONLY in Excel file (in-memory during session)');
+});
 
 // Handle row click
 function handleRowClick(e) {
@@ -46,7 +45,7 @@ function handleRowClick(e) {
     }
 }
 
-// Render table
+// Render table (shows all data from studentList)
 function renderTable() {
     studentTableBody.innerHTML = '';
     studentList.forEach((student, index) => {
@@ -115,9 +114,9 @@ function addStudent() {
     if (fieldsEmpty()) return showAlert('Error', 'Fill all fields!');
     const student = new Student(nameField.value.trim(), idField.value.trim(), deptField.value.trim(), emailField.value.trim(), cgpaField.value.trim());
     studentList.push(student);
-    renderTable();
+    renderTable(); // Update table immediately
     clearFields();
-    showAlert('Success', `${studentList.length} students. Export to TeraBox folder to save.`);
+    showAlert('Success', `${studentList.length} students. Export to Excel to save.`);
 }
 
 // Update Student
@@ -126,19 +125,70 @@ function updateStudent() {
     if (fieldsEmpty()) return showAlert('Error', 'Fill all fields!');
     const updated = new Student(nameField.value.trim(), idField.value.trim(), deptField.value.trim(), emailField.value.trim(), cgpaField.value.trim());
     studentList[selectedRow] = updated;
-    renderTable();
+    renderTable(); // Update table immediately
     clearFields();
-    showAlert('Success', 'Updated! Export to TeraBox folder.');
+    showAlert('Success', 'Updated! Export to Excel.');
 }
 
 // Delete Student
 function deleteStudent() {
     if (selectedRow === null) return showAlert('Error', 'Select a row to delete.');
     studentList.splice(selectedRow, 1);
-    renderTable();
+    renderTable(); // Update table immediately
     clearFields();
-    showAlert('Success', 'Deleted! Export to TeraBox folder.');
+    showAlert('Success', 'Deleted! Export to Excel.');
 }
 
 // Search Student
-function searchStudent()
+function searchStudent() {
+    const searchId = searchField.value.trim();
+    if (!searchId) return showAlert('Error', 'Enter ID to search.');
+    const foundIndex = studentList.findIndex(s => s.id.toLowerCase() === searchId.toLowerCase());
+    if (foundIndex !== -1) {
+        selectRow(foundIndex);
+        showAlert('Found', 'Student selected!');
+    } else {
+        showAlert('Not Found', `No student with ID: ${searchId}`);
+    }
+}
+
+// Export to Excel (.xlsx)
+function exportToExcel() {
+    if (studentList.length === 0) return showAlert('Error', 'No data to export. Add students first.');
+    
+    // Prepare data for Excel (headers + rows)
+    const headers = [['Name', 'ID', 'Department', 'Email', 'CGPA']];
+    const rows = studentList.map(student => [
+        student.name,
+        student.id,
+        student.department,
+        student.email,
+        student.cgpa
+    ]);
+    const data = [...headers, ...rows];
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Students');
+    
+    // Download file
+    XLSX.writeFile(wb, 'students.xlsx');
+    showAlert('Success', 'Exported to students.xlsx!');
+}
+
+// Import from Excel (.xlsx) - Parses data, updates studentList, and shows in table
+function importFromExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const wb = XLSX.read(data, { type: 'array' });
+            const wsName = wb.SheetNames[0]; // First sheet
+            const ws = wb.Sheets[wsName];
+            const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 }); // Array of arrays (rows)
+            
+            if (jsonData.length < 2) { // No
