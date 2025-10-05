@@ -172,6 +172,36 @@ function searchStudent() {
         showAlert('Not Found', `No student found with ID: ${searchId}`);
     }
 }
+// Generate a temporary session ID (e.g., UUID-like)
+const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+// Load data from Firebase (under session path)
+function loadData() {
+    const ref = db.ref('students/' + sessionId);
+    ref.once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+            studentList = Object.values(data).map(d => new Student(d.name, d.id, d.department, d.email, d.cgpa));
+            console.log('Cloud session data loaded');
+        }
+    }).catch(e => console.error('Load error:', e));
+}
+
+// Save data to Firebase
+function saveData() {
+    const ref = db.ref('students/' + sessionId);
+    const dataToSave = {};
+    studentList.forEach((student, index) => {
+        dataToSave[index] = { name: student.name, id: student.id, department: student.department, email: student.email, cgpa: student.cgpa };
+    });
+    ref.set(dataToSave).then(() => console.log('Cloud session data saved'));
+}
+
+// Delete data on exit
+window.addEventListener('beforeunload', () => {
+    db.ref('students/' + sessionId).remove();
+    console.log('Cloud session data deleted');
+});
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', initialize);
