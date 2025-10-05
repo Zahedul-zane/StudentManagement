@@ -74,13 +74,14 @@ body {
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .menu-title {
     font-size: 18px;
     font-weight: bold;
     margin: 0 0 10px 0;
+    color: #FFD54F;
 }
 
 .menu-btn {
@@ -99,7 +100,46 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* NEW: Style for Import Label (makes it look like a button) */
+.small-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* TeraBox Section */
+.terabox-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.terabox-title {
+    font-size: 14px;
+    color: #FFD54F;
+    margin: 0 0 10px 0;
+}
+
+.import-link {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tera-link-input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 12px;
+}
+
+.tera-link-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
 .import-label {
     background: transparent !important;
     border: none !important;
@@ -110,7 +150,6 @@ body {
     border-radius: 5px !important;
     cursor: pointer !important;
     transition: background-color 0.3s !important;
-    display: block !important;
 }
 
 .import-label:hover {
@@ -127,7 +166,7 @@ body {
 }
 
 .form-container {
-    flex: 0 0 35%; /* Mimics SplitPane divider at 0.35 */
+    flex: 0 0 35%;
     background: white;
     padding: 20px;
     border-radius: 15px;
@@ -174,19 +213,22 @@ body {
     border: 1px solid #CE93D8;
     border-radius: 5px;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 #studentTable {
     width: 100%;
     border-collapse: collapse;
     background: white;
+    flex: 1;
 }
 
 #studentTable th,
 #studentTable td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid transparent;
+    border-bottom: 1px solid #ddd;
 }
 
 #studentTable th {
@@ -208,7 +250,15 @@ body {
     background-color: #E1BEE7;
 }
 
-/* Responsive (for smaller screens, but optimized for desktop) */
+.table-note {
+    font-size: 12px;
+    color: #666;
+    margin: 10px;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Responsive */
 @media (max-width: 1200px) {
     .center-panel {
         flex-direction: column;
