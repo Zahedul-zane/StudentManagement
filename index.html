@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management App - TeraBox Storage</title>
+    <title>Student Management App - Excel Storage</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- SheetJS Library for Excel (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- Top Navigation Bar -->
         <header class="header">
-            <h1 class="title">📖 Student Dashboard (TeraBox Storage)</h1>
+            <h1 class="title">📖 Student Dashboard (Excel Storage)</h1>
             <div class="search-container">
                 <input type="text" id="searchField" placeholder="Search by ID..." class="search-input">
                 <button onclick="searchStudent()" class="search-btn">🔍</button>
@@ -24,16 +26,12 @@
                 <button onclick="addStudent()" class="menu-btn">➕ Add Student</button>
                 <button onclick="updateStudent()" class="menu-btn">✏️ Update Student</button>
                 <button onclick="deleteStudent()" class="menu-btn">🗑️ Delete Student</button>
-                <!-- TeraBox-Only Storage -->
-                <div class="terabox-section">
-                    <h3 class="terabox-title">TeraBox Folder Storage</h3>
-                    <button onclick="exportData()" class="menu-btn">💾 Export JSON (Upload to TeraBox Folder)</button>
-                    <div class="import-link">
-                        <input type="text" id="teraLinkInput" placeholder="Paste TeraBox folder/file share link..." class="tera-link-input">
-                        <button onclick="importFromLink()" class="menu-btn small-btn">Import from Link</button>
-                    </div>
-                    <label for="importFile" class="menu-btn import-label">📁 Import JSON File (Download from TeraBox)</label>
-                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importFromFile(event)">
+                <!-- Excel Storage Section -->
+                <div class="excel-section">
+                    <h3 class="excel-title">Excel Sheet Storage (for TeraBox)</h3>
+                    <button onclick="exportToExcel()" class="menu-btn">📊 Export to Excel (.xlsx)</button>
+                    <label for="importExcelFile" class="menu-btn import-label">📁 Import Excel File (from TeraBox)</label>
+                    <input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel(event)">
                 </div>
             </aside>
 
@@ -79,7 +77,7 @@
                             <!-- Rows populated by JS -->
                         </tbody>
                     </table>
-                    <p class="table-note">Data stored ONLY in TeraBox folder. Refresh loses data - import to restore.</p>
+                    <p class="table-note">Data stored ONLY in Excel file (upload to TeraBox folder). Refresh loses data - import to restore.</p>
                 </div>
             </main>
         </div>
