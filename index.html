@@ -18,6 +18,7 @@
                 <button onclick="searchStudent()" class="search-btn">🔍</button>
             </div>
         </header>
+
         <div class="main-content">
             <!-- Sidebar Menu -->
             <aside class="sidebar">
@@ -27,9 +28,9 @@
                 <button onclick="deleteStudent()" class="menu-btn">🗑️ Delete Student</button>
                 <!-- Excel Storage Section -->
                 <div class="excel-section">
-                    <h3 class="excel-title">Excel Sheet Storage (for TeraBox)</h3>
+                    <h3 class="excel-title">Excel Sheet Storage</h3>
                     <button onclick="exportToExcel()" class="menu-btn">📊 Export to Excel (.xlsx)</button>
-                    <label for="importExcelFile" class="menu-btn import-label">📁 Import Excel File (from TeraBox)</label>
+                    <label for="importExcelFile" class="menu-btn import-label">📁 Import Excel File</label>
                     <input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel(event)">
                 </div>
             </aside>
@@ -76,7 +77,7 @@
                             <!-- Rows populated by JS -->
                         </tbody>
                     </table>
-                    <p class="table-note">Data stored ONLY in Excel file (upload to TeraBox folder). Refresh loses data - import to restore.</p>
+                    <p class="table-note">Data stored ONLY in Excel file. Refresh loses data - import to restore and display in table.</p>
                 </div>
             </main>
         </div>
