@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Navigation Bar -->
+        <header class="header">
+            <h1 class="title">📖 Student Dashboard</h1>
+            <div class="search-container">
+                <input type="text" id="searchField" placeholder="Search by ID..." class="search-input">
+                <button onclick="searchStudent()" class="search-btn">🔍</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar Menu -->
+            <aside class="sidebar">
+                <h2 class="menu-title">Menu</h2>
+                <button onclick="addStudent()" class="menu-btn">➕ Add Student</button>
+                <button onclick="updateStudent()" class="menu-btn">✏️ Update Student</button>
+                <button onclick="deleteStudent()" class="menu-btn">🗑️ Delete Student</button>
+            </aside>
+
+            <!-- Center: Form and Table -->
+            <main class="center-panel">
+                <div class="form-container">
+                    <h2 class="form-title">Student Details</h2>
+                    <div class="form-group">
+                        <label for="nameField">Name</label>
+                        <input type="text" id="nameField" placeholder="XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="idField">ID</label>
+                        <input type="text" id="idField" placeholder="2022-01-001">
+                    </div>
+                    <div class="form-group">
+                        <label for="deptField">Department</label>
+                        <input type="text" id="deptField" placeholder="XXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailField">Email</label>
+                        <input type="text" id="emailField" placeholder="XXX@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="cgpaField">CGPA</label>
+                        <input type="text" id="cgpaField" placeholder="3.75">
+                    </div>
+                </div>
+
+                <!-- Student Table -->
+                <div class="table-container">
+                    <table id="studentTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>ID</th>
+                                <th>Department</th>
+                                <th>Email</th>
+                                <th>CGPA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- Rows populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
