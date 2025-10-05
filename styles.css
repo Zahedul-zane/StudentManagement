@@ -99,6 +99,24 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* NEW: Style for Import Label (makes it look like a button) */
+.import-label {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-weight: bold !important;
+    text-align: left !important;
+    padding: 10px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s !important;
+    display: block !important;
+}
+
+.import-label:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 /* Center Panel */
 .center-panel {
     display: flex;
