@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     renderTable();
     studentTableBody.addEventListener('click', handleRowClick);
-    console.log('Initialized - Data ONLY in Excel file (in-memory during session)');
+    console.log('App initialized - Ready for Excel import/export.');
 });
 
 // Handle row click
@@ -45,7 +45,7 @@ function handleRowClick(e) {
     }
 }
 
-// Render table (shows all data from studentList)
+// Render table (displays all data from studentList)
 function renderTable() {
     studentTableBody.innerHTML = '';
     studentList.forEach((student, index) => {
@@ -72,7 +72,7 @@ function selectRow(index) {
     const row = studentTableBody.children[index];
     if (row) {
         row.classList.add('selected');
-        row.scrollIntoView({ behavior: 'smooth' });
+        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     if (index >= 0 && index < studentList.length) {
         const student = studentList[index];
@@ -84,20 +84,20 @@ function selectRow(index) {
     }
 }
 
-// Clear form
+// Clear form and deselect
 function clearFields() {
     nameField.value = idField.value = deptField.value = emailField.value = cgpaField.value = '';
     selectedRow = null;
     renderTable();
 }
 
-// Check empty fields
+// Check if fields are empty
 function fieldsEmpty() {
     return !nameField.value.trim() || !idField.value.trim() || !deptField.value.trim() ||
            !emailField.value.trim() || !cgpaField.value.trim();
 }
 
-// Alert helper
+// Show alert
 function showAlert(title, message) {
     alert(`${title}\n${message}`);
 }
@@ -111,42 +111,55 @@ function escapeHtml(text) {
 
 // Add Student
 function addStudent() {
-    if (fieldsEmpty()) return showAlert('Error', 'Fill all fields!');
-    const student = new Student(nameField.value.trim(), idField.value.trim(), deptField.value.trim(), emailField.value.trim(), cgpaField.value.trim());
+    if (fieldsEmpty()) return showAlert('Input Error', 'Fill all fields!');
+    const student = new Student(
+        nameField.value.trim(),
+        idField.value.trim(),
+        deptField.value.trim(),
+        emailField.value.trim(),
+        cgpaField.value.trim()
+    );
     studentList.push(student);
-    renderTable(); // Update table immediately
+    renderTable(); // Show in table
     clearFields();
-    showAlert('Success', `${studentList.length} students. Export to Excel to save.`);
+    showAlert('Success', `Added student. Total: ${studentList.length}. Export to Excel to save.`);
 }
 
 // Update Student
 function updateStudent() {
-    if (selectedRow === null) return showAlert('Error', 'Select a row to update.');
-    if (fieldsEmpty()) return showAlert('Error', 'Fill all fields!');
-    const updated = new Student(nameField.value.trim(), idField.value.trim(), deptField.value.trim(), emailField.value.trim(), cgpaField.value.trim());
+    if (selectedRow === null) return showAlert('Update Error', 'Select a row to update.');
+    if (fieldsEmpty()) return showAlert('Input Error', 'Fill all fields!');
+    const updated = new Student(
+        nameField.value.trim(),
+        idField.value.trim(),
+        deptField.value.trim(),
+        emailField.value.trim(),
+        cgpaField.value.trim()
+    );
     studentList[selectedRow] = updated;
-    renderTable(); // Update table immediately
+    renderTable(); // Show updated in table
     clearFields();
-    showAlert('Success', 'Updated! Export to Excel.');
+    showAlert('Success', 'Student updated. Export to Excel.');
 }
 
 // Delete Student
 function deleteStudent() {
-    if (selectedRow === null) return showAlert('Error', 'Select a row to delete.');
+    if (selectedRow === null) return showAlert('Delete Error', 'Select a row to delete.');
+    const deletedName = studentList[selectedRow].name;
     studentList.splice(selectedRow, 1);
-    renderTable(); // Update table immediately
+    renderTable(); // Show updated table
     clearFields();
-    showAlert('Success', 'Deleted! Export to Excel.');
+    showAlert('Success', `Deleted ${deletedName}. Total: ${studentList.length}. Export to Excel.`);
 }
 
 // Search Student
 function searchStudent() {
     const searchId = searchField.value.trim();
-    if (!searchId) return showAlert('Error', 'Enter ID to search.');
+    if (!searchId) return showAlert('Search Error', 'Enter an ID to search.');
     const foundIndex = studentList.findIndex(s => s.id.toLowerCase() === searchId.toLowerCase());
     if (foundIndex !== -1) {
         selectRow(foundIndex);
-        showAlert('Found', 'Student selected!');
+        showAlert('Found', 'Student selected in table.');
     } else {
         showAlert('Not Found', `No student with ID: ${searchId}`);
     }
@@ -154,9 +167,8 @@ function searchStudent() {
 
 // Export to Excel (.xlsx)
 function exportToExcel() {
-    if (studentList.length === 0) return showAlert('Error', 'No data to export. Add students first.');
+    if (studentList.length === 0) return showAlert('Export Error', 'No data to export. Add students first.');
     
-    // Prepare data for Excel (headers + rows)
     const headers = [['Name', 'ID', 'Department', 'Email', 'CGPA']];
     const rows = studentList.map(student => [
         student.name,
@@ -167,28 +179,14 @@ function exportToExcel() {
     ]);
     const data = [...headers, ...rows];
     
-    // Create workbook and worksheet
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, ws, 'Students');
     
-    // Download file
     XLSX.writeFile(wb, 'students.xlsx');
-    showAlert('Success', 'Exported to students.xlsx!');
+    showAlert('Success', 'Exported to students.xlsx! Open in Excel to view/edit.');
 }
 
-// Import from Excel (.xlsx) - Parses data, updates studentList, and shows in table
+// Import from Excel (.xlsx) - Fully parses, loads to studentList, displays in table
 function importFromExcel(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const wb = XLSX.read(data, { type: 'array' });
-            const wsName = wb.SheetNames[0]; // First sheet
-            const ws = wb.Sheets[wsName];
-            const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 }); // Array of arrays (rows)
-            
-            if (jsonData.length < 2) { // No
+    const file = event.target.files[0
