@@ -1,3 +1,4 @@
+/* Global Styles */
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,6 +12,8 @@ body {
     flex-direction: column;
     height: 100vh;
 }
+
+/* Header */
 .header {
     display: flex;
     justify-content: space-between;
