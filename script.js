@@ -10,20 +10,30 @@ class Student {
 }
 
 // Global variables
-let studentList = []; // In-memory list like ObservableList
+let studentList = []; // In-memory list (no persistent storage)
 let selectedRow = null; // Track selected row index
 
-// DOM elements
-const nameField = document.getElementById('nameField');
-const idField = document.getElementById('idField');
-const deptField = document.getElementById('deptField');
-const emailField = document.getElementById('emailField');
-const cgpaField = document.getElementById('cgpaField');
-const searchField = document.getElementById('searchField');
-const studentTableBody = document.getElementById('studentTableBody');
+// DOM elements (selected inside initialize())
+let nameField, idField, deptField, emailField, cgpaField, searchField, studentTableBody;
 
-// Initialize: Set up table and event listeners
+// Initialize: Set up everything after DOM is ready
 function initialize() {
+    // Select DOM elements now (safe after DOMContentLoaded)
+    nameField = document.getElementById('nameField');
+    idField = document.getElementById('idField');
+    deptField = document.getElementById('deptField');
+    emailField = document.getElementById('emailField');
+    cgpaField = document.getElementById('cgpaField');
+    searchField = document.getElementById('searchField');
+    studentTableBody = document.getElementById('studentTableBody');
+
+    // Error check: Ensure all elements exist
+    if (!nameField || !idField || !deptField || !emailField || !cgpaField || !searchField || !studentTableBody) {
+        console.error('One or more DOM elements not found. Check HTML IDs.');
+        alert('Error: Missing UI elements. Please refresh and check console.');
+        return;
+    }
+
     renderTable(); // Initial empty table
 
     // Row click listener: Populate form and select row
@@ -34,10 +44,13 @@ function initialize() {
             selectRow(index);
         }
     });
+
+    console.log('App initialized - Data stored in-memory (export to TeraBox for persistence)');
 }
 
 // Render table from studentList
 function renderTable() {
+    if (!studentTableBody) return;
     studentTableBody.innerHTML = '';
     studentList.forEach((student, index) => {
         const row = document.createElement('tr');
@@ -57,6 +70,8 @@ function renderTable() {
 
 // Select row: Highlight and populate form
 function selectRow(index) {
+    if (!studentTableBody) return;
+
     // Deselect previous
     if (selectedRow !== null) {
         const prevRow = studentTableBody.children[selectedRow];
@@ -71,7 +86,7 @@ function selectRow(index) {
     }
 
     // Populate form if valid selection
-    if (index >= 0 && index < studentList.length) {
+    if (index >= 0 && index < studentList.length && nameField && idField && deptField && emailField && cgpaField) {
         const student = studentList[index];
         nameField.value = student.name;
         idField.value = student.id;
@@ -83,22 +98,24 @@ function selectRow(index) {
 
 // Clear form fields
 function clearFields() {
-    nameField.value = '';
-    idField.value = '';
-    deptField.value = '';
-    emailField.value = '';
-    cgpaField.value = '';
-    selectedRow = null; // Deselect
-    renderTable(); // Refresh to remove selection
+    if (nameField && idField && deptField && emailField && cgpaField) {
+        nameField.value = '';
+        idField.value = '';
+        deptField.value = '';
+        emailField.value = '';
+        cgpaField.value = '';
+    }
+    selectedRow = null;
+    renderTable();
 }
 
 // Check if fields are empty
 function fieldsEmpty() {
-    return !nameField.value.trim() || !idField.value.trim() || !deptField.value.trim() ||
-           !emailField.value.trim() || !cgpaField.value.trim();
+    return !nameField?.value?.trim() || !idField?.value?.trim() || !deptField?.value?.trim() ||
+           !emailField?.value?.trim() || !cgpaField?.value?.trim();
 }
 
-// Show alert (simple browser alert)
+// Show alert
 function showAlert(title, message) {
     alert(`${title}: ${message}`);
 }
@@ -119,6 +136,7 @@ function addStudent() {
     studentList.push(student);
     renderTable();
     clearFields();
+    showAlert('Success', 'Student added! Export to save to TeraBox.');
 }
 
 // Update Student
@@ -141,6 +159,7 @@ function updateStudent() {
     studentList[selectedRow] = updated;
     renderTable();
     clearFields();
+    showAlert('Success', 'Student updated! Export to save to TeraBox.');
 }
 
 // Delete Student
@@ -152,10 +171,12 @@ function deleteStudent() {
     studentList.splice(selectedRow, 1);
     renderTable();
     clearFields();
+    showAlert('Success', 'Student deleted! Export to save changes to TeraBox.');
 }
 
 // Search Student
 function searchStudent() {
+    if (!searchField) return;
     const searchId = searchField.value.trim();
     if (!searchId) {
         showAlert('Search Error', 'Please enter a student ID to search.');
@@ -168,40 +189,25 @@ function searchStudent() {
 
     if (foundIndex !== -1) {
         selectRow(foundIndex);
+        showAlert('Found', 'Student selected!');
     } else {
         showAlert('Not Found', `No student found with ID: ${searchId}`);
     }
 }
-// Generate a temporary session ID (e.g., UUID-like)
-const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-// Load data from Firebase (under session path)
-function loadData() {
-    const ref = db.ref('students/' + sessionId);
-    ref.once('value').then(snapshot => {
-        const data = snapshot.val();
-        if (data) {
-            studentList = Object.values(data).map(d => new Student(d.name, d.id, d.department, d.email, d.cgpa));
-            console.log('Cloud session data loaded');
-        }
-    }).catch(e => console.error('Load error:', e));
-}
-
-// Save data to Firebase
-function saveData() {
-    const ref = db.ref('students/' + sessionId);
-    const dataToSave = {};
-    studentList.forEach((student, index) => {
-        dataToSave[index] = { name: student.name, id: student.id, department: student.department, email: student.email, cgpa: student.cgpa };
-    });
-    ref.set(dataToSave).then(() => console.log('Cloud session data saved'));
-}
-
-// Delete data on exit
-window.addEventListener('beforeunload', () => {
-    db.ref('students/' + sessionId).remove();
-    console.log('Cloud session data deleted');
-});
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', initialize);
+// NEW: Export Data to JSON (for upload to TeraBox)
+function exportData() {
+    if (studentList.length === 0) {
+        showAlert('Export Error', 'No data to export. Add some students first.');
+        return;
+    }
+    const dataToExport = studentList.map(student => ({
+        name: student.name,
+        id: student.id,
+        department: student.department,
+        email: student.email,
+        cgpa: student.cgpa
+    }));
+    const jsonStr = JSON.stringify(dataToExport, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url
