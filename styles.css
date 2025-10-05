@@ -209,6 +209,7 @@ body {
     color: white;
     font-weight: bold;
 }
+
 #studentTable tbody tr {
     cursor: pointer;
     transition: background-color 0.3s;
